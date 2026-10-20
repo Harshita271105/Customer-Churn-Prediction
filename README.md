@@ -4,6 +4,9 @@ ChurnGuard is a machine learning application that predicts customer churn risk a
 
 It combines data validation, exploratory data analysis, machine learning pipelines, model evaluation, and an interactive Streamlit dashboard.
 
+## Live Demo
+
+Try ChurnGuard here: https://customer-churn-prediction-kpbazmnzgxsg4gkjbh6tbe.streamlit.app/
 ## ✨ Features
 
 - **Customer Analytics:** View customer counts, churn rate, and retention statistics.
