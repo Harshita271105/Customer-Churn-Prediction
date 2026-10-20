@@ -1,72 +1,171 @@
-# ChurnGuard — Customer Churn Prediction and Retention Intelligence System
+# 🛡️ ChurnGuard — Customer Churn Prediction & Retention Intelligence
 
-## Overview
+ChurnGuard is a machine learning application that predicts customer churn risk and explores customer-retention patterns using the Telco Customer Churn dataset.
 
-ChurnGuard is a machine learning project designed to identify customers who may be at risk of leaving a service. It aims to support data-driven customer retention decisions through predictive modelling, model evaluation, and an interactive application.
+It combines data validation, exploratory data analysis, machine learning pipelines, model evaluation, and an interactive Streamlit dashboard.
 
-**Project status:** In development.
+## ✨ Features
 
-## Objectives
+- **Customer Analytics:** View customer counts, churn rate, and retention statistics.
+- **Churn Prediction:** Estimate churn probability from customer, service, contract, and billing details.
+- **Exploratory Data Analysis:** Explore churn patterns by contract, tenure, internet service, payment method, and monthly charges.
+- **Machine Learning Pipeline:** Preprocess numerical and categorical features consistently with the trained model.
+- **Model Evaluation:** Compare classification metrics and inspect model validation reports.
+- **Automated Tests:** Verify that the saved model loads and the prediction interface works.
 
-- Explore and validate a public customer churn dataset.
-- Perform exploratory data analysis (EDA).
-- Build a reproducible machine learning pipeline.
-- Compare models using appropriate evaluation metrics.
-- Interpret model predictions and identify relevant patterns.
-- Develop an interactive Streamlit application.
-- Add automated tests and maintain project documentation.
-
-## Technology Stack
+## 🧰 Tech Stack
 
 - Python
 - pandas and NumPy
-- Matplotlib and Seaborn
 - scikit-learn
-- Streamlit and Plotly
-- pytest and joblib
-- Git and GitHub
+- Matplotlib and Seaborn
+- Streamlit
+- joblib
+- pytest
 
-## Dataset
+## 📊 Dataset
 
-The project plans to use the IBM Telco Customer Churn dataset.
+This project uses the Telco Customer Churn dataset sourced from Kaggle.
 
-Source: https://www.kaggle.com/datasets/blastchar/telco-customer-churn
+- **Customer records:** 7,043
+- **Original columns:** 21
+- **Churned customers:** 1,869
+- **Retained customers:** 5,174
+- **Observed churn rate:** 26.54%
 
-Dataset validation, attribution requirements, and data-quality findings will be documented after the dataset has been obtained and inspected.
+These figures describe the dataset used in this project, not a live telecommunications company's current customer base.
 
-## Project Structure
+Dataset source: [Telco Customer Churn on Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 
-```text
+Review the dataset's license and attribution requirements before redistributing the raw data.
+
+## 🖥️ Application Screenshots
+
+### Analytics Dashboard
+
+![ChurnGuard analytics dashboard](screenshots/dashboard.png)
+
+### Churn Prediction
+
+![ChurnGuard prediction results](screenshots/prediction-1.png)
+![ChurnGuard prediction results](screenshots/prediction-2.png)
+![ChurnGuard prediction results](screenshots/prediction-3.png)
+
+## 📁 Project Structure
+
 Customer-Churn-Prediction/
 ├── data/
 │   ├── raw/
 │   └── processed/
-├── notebooks/
-├── src/
 ├── models/
-├── tests/
+│   └── churn_model.joblib
 ├── reports/
-├── .gitignore
+│   ├── eda_findings.md
+│   ├── model_metrics.json
+│   └── model_validation.json
+├── screenshots/
+│   ├── dashboard.png
+│   └── prediction.png
+├── src/
+│   ├── inspect_data.py
+│   ├── clean_data.py
+│   ├── validate_cleaned_data.py
+│   ├── eda.py
+│   ├── prepare_features.py
+│   ├── evaluate_model.py
+│   └── predict.py
+├── tests/
+│   └── test_model.py
+├── app.py
+├── requirements.txt
 └── README.md
+
+
+
+## 🚀 Run Locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Harshita271105/Customer-Churn-Prediction.git
+cd Customer-Churn-Prediction
 ```
 
-## Current Progress
+### 2. Create a virtual environment
 
-- [x] Local project repository initialized.
-- [x] Virtual environment configured.
-- [x] Initial dependencies installed.
-- [x] Project folder structure created.
-- [x] `.gitignore` added.
-- [ ] Dataset acquisition and validation.
-- [ ] Exploratory data analysis.
-- [ ] Model training and evaluation.
-- [ ] Prediction pipeline and Streamlit application.
-- [ ] Automated testing and deployment.
+Windows PowerShell:
 
-## Limitations
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-ChurnGuard is intended to estimate churn risk, not guarantee that a customer will leave or that a retention intervention will succeed. Model performance and business usefulness will be assessed using actual experimental results.
+### 3. Install dependencies
 
-## License
+```bash
+python -m pip install -r requirements.txt
+```
 
-A project license will be selected after reviewing the dataset's applicable licensing and attribution requirements.
+### 4. Launch the dashboard
+
+```bash
+streamlit run app.py
+```
+
+### 5. Run automated tests
+
+```bash
+python -m pytest tests/ -v
+```
+
+## 📈 Analysis Highlights
+
+The initial exploratory analysis found the following churn rates:
+
+| Segment | Observed churn rate |
+|---|---:|
+| Month-to-month contracts | 42.71% |
+| One-year contracts | 11.27% |
+| Two-year contracts | 2.83% |
+| Customer tenure of 0–12 months | 47.44% |
+| Customer tenure of 61–72 months | 6.61% |
+| Fiber-optic internet service | 41.89% |
+| Electronic-check payments | 45.29% |
+
+These are observational associations. They do not establish that a particular service, payment method, or contract causes churn.
+
+## 🧪 Model Evaluation
+
+The project compares machine learning classifiers using a held-out test set and additional validation.
+
+Evaluation metrics include:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- ROC-AUC
+- Confusion matrix
+
+See the generated reports in `reports/` for the actual recorded results. Model quality should be judged using those results, not assumed from the existence of a trained model.
+
+## ⚠️ Limitations
+
+- Predictions depend on the training data and may not generalize to every customer population.
+- A churn probability is an estimate, not a guarantee.
+- Retention suggestions are general prompts and should be evaluated against real business outcomes.
+- Further calibration, monitoring, and external validation would be needed before production use.
+
+## 🔮 Future Improvements
+
+- Add SHAP-based model explanations.
+- Improve probability calibration and threshold selection.
+- Add model monitoring and drift detection.
+- Evaluate retention interventions using real outcomes.
+- Deploy the application publicly.
+
+## 👩‍💻 Author
+
+**Harshita Verma**
+
+GitHub: [Harshita271105](https://github.com/Harshita271105)
