@@ -1,0 +1,24 @@
+{
+    "best_model": "Logistic Regression",
+    "selection_metric": "roc_auc",
+    "test_size": 0.2,
+    "random_state": 42,
+    "training_rows": 5634,
+    "testing_rows": 1409,
+    "models": {
+        "Logistic Regression": {
+            "accuracy": 0.7381121362668559,
+            "precision": 0.504302925989673,
+            "recall": 0.7834224598930482,
+            "f1_score": 0.6136125654450262,
+            "roc_auc": 0.8416388953473353
+        },
+        "Random Forest": {
+            "accuracy": 0.7707594038325053,
+            "precision": 0.5605700712589073,
+            "recall": 0.6310160427807486,
+            "f1_score": 0.5937106918238994,
+            "roc_auc": 0.8219522591645354
+        }
+    }
+}
