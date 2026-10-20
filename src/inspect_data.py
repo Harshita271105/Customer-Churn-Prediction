@@ -22,10 +22,7 @@ def main():
     print(f"Rows: {df.shape[0]}")
     print(f"Columns: {df.shape[1]}")
 
-    print("\n--- COLUMN NAMES ---")
-    print(df.columns.tolist())
-
-    print("\n--- DATA TYPES ---")
+    print("\n--- COLUMN NAMES AND DATA TYPES ---")
     print(df.dtypes.to_string())
 
     print("\n--- MISSING VALUES ---")
@@ -34,61 +31,48 @@ def main():
     print("\n--- DUPLICATE ROWS ---")
     print(df.duplicated().sum())
 
-    print("\n--- FIRST 5 ROWS ---")
-    print(df.head().to_string())
+    print("\n--- CHURN DISTRIBUTION ---")
+    print(df["Churn"].value_counts(dropna=False).to_string())
 
-    print("\n--- POSSIBLE CHURN TARGET ---")
-    if "Churn" in df.columns:
-        print(df["Churn"].value_counts(dropna=False).to_string())
-    else:
-        print("No column named 'Churn' found.")
+    print("\n--- CUSTOMER ID VALIDATION ---")
+    print(f"Unique IDs: {df['customerID'].nunique()}")
+    print(f"Missing IDs: {df['customerID'].isnull().sum()}")
 
-    print("\n--- CUSTOMER ID CHECK ---")
-    if "customerID" in df.columns:
-        print(f"Unique customer IDs: {df['customerID'].nunique()}")
-        print(f"Missing customer IDs: {df['customerID'].isnull().sum()}")
-    else:
-        print("No column named 'customerID' found.")
-
-    print("\n--- DATA QUALITY CHECKS ---")
-
-    print("\nMissing values per column:")
-    print(df.isnull().sum().to_string())
-
-    print("\nDuplicate rows:")
-    print(df.duplicated().sum())
-
-    print("\nTotal rows and columns:")
-    print(df.shape)
-
-    print("\n--- TOTALCHARGES INSPECTION ---")
-    if "TotalCharges" in df.columns:
-        total_charges = df["TotalCharges"].astype(str).str.strip()
-
-        print("Data type:", df["TotalCharges"].dtype)
-        print("Blank strings:", (total_charges == "").sum())
-        print("Whitespace-only strings:", total_charges.eq("").sum())
-    else:
-        print("TotalCharges column not found.")
-
-
-
-    print("\n--- MISSING AND INVALID VALUE CHECK ---")
-
-    print("\nMissing values per column:")
-    print(df.isnull().sum().to_string())
-
-    print("\nTotalCharges conversion check:")
-    charges_numeric = pd.to_numeric(
-        df["TotalCharges"].astype(str).str.strip(),
-        errors="coerce"
-    )
-
+    print("\n--- TOTALCHARGES VALIDATION ---")
+    total_charges = df["TotalCharges"].astype(str).str.strip()
+    charges_numeric = pd.to_numeric(total_charges, errors="coerce")
     invalid_charges = charges_numeric.isna()
 
-    print("Values that cannot be converted to numbers:", invalid_charges.sum())
-    print("Affected customer IDs:")
-    print(df.loc[invalid_charges, "customerID"].to_string(index=False))
+    print(f"Blank strings: {(total_charges == '').sum()}")
+    print(f"Non-numeric values: {invalid_charges.sum()}")
+
+    print("\n--- AFFECTED CUSTOMER RECORDS ---")
+    affected_rows = df.loc[
+        invalid_charges,
+        [
+            "customerID",
+            "tenure",
+            "MonthlyCharges",
+            "TotalCharges",
+            "Churn",
+        ],
+    ]
+    print(affected_rows.to_string(index=False))
+
+    print("\n--- CATEGORICAL COLUMN SUMMARY ---")
+    categorical_columns = df.select_dtypes(
+        include=["object", "category"]
+    ).columns
+
+    for column in categorical_columns:
+        blank_count = (
+            df[column].astype(str).str.strip() == ""
+        ).sum()
+
+        print(
+            f"{column}: {df[column].nunique()} unique values, "
+            f"{blank_count} blank strings"
+        )
 
 
 if __name__ == "__main__":
