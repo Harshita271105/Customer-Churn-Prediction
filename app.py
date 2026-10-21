@@ -12,7 +12,7 @@ DATA_PATH = (
     PROJECT_ROOT / "data" / "processed" / "telco_churn_cleaned.csv"
 )
 REPORTS_PATH = PROJECT_ROOT / "reports"
-
+CHURN_THRESHOLD = 0.60
 # --------------------------------------------------
 # PAGE CONFIGURATION
 # --------------------------------------------------
@@ -598,14 +598,13 @@ with prediction_tab:
 
         try:
             probability = float(model.predict_proba(customer)[0, 1])
-            prediction = model.predict(customer)[0]
+            prediction = int(probability >= CHURN_THRESHOLD)
 
             st.divider()
             st.markdown(
                 '<div class="section-heading">Prediction Results</div>',
                 unsafe_allow_html=True,
             )
-
             col1, col2 = st.columns([1, 1], gap="large")
 
             with col1:
@@ -624,7 +623,7 @@ with prediction_tab:
                 st.progress(probability)
 
             with col2:
-                if probability >= 0.5:
+                if probability >= CHURN_THRESHOLD:
                     st.error("### Higher predicted churn risk")
                     st.write(
                         "Review this customer's service experience "
@@ -646,7 +645,6 @@ with prediction_tab:
 
             # Suggestions are based on observed dataset associations.
             st.markdown("#### Retention Opportunities")
-
             suggestions = []
 
             if contract == "Month-to-month":
@@ -689,9 +687,10 @@ with prediction_tab:
                 st.markdown(f"- {suggestion}")
 
             st.caption(
+                f"Classification threshold: {CHURN_THRESHOLD:.0%}. "
                 "The probability is a model estimate, not a guarantee. "
-                "The 50% classification threshold may not be the optimal "
-                "business threshold. Suggestions are general prompts, "
+                "The threshold was selected using training-set cross-validation "
+                "to maximize F1-score. Suggestions are general prompts, "
                 "not causal explanations of the prediction."
             )
 

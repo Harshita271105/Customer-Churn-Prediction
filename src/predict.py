@@ -13,6 +13,9 @@ DATA_PATH = (
     / "telco_churn_cleaned.csv"
 )
 
+# Selected using out-of-fold predictions on training data.
+CHURN_THRESHOLD = 0.60
+
 
 def load_model():
     if not MODEL_PATH.exists():
@@ -37,12 +40,13 @@ def load_customer_data():
 def predict_churn(customer_data):
     model = load_model()
 
-    predictions = model.predict(customer_data)
     probabilities = model.predict_proba(customer_data)[:, 1]
+    predictions = (probabilities >= CHURN_THRESHOLD).astype(int)
 
     results = customer_data.copy()
     results["PredictedChurn"] = predictions
     results["ChurnProbability"] = probabilities
+    results["DecisionThreshold"] = CHURN_THRESHOLD
 
     return results
 
@@ -64,6 +68,8 @@ def main():
     results.to_csv(output_path, index=False)
 
     print(f"\nTotal customers scored: {len(results)}")
+    print(f"Decision threshold: {CHURN_THRESHOLD:.2f}")
+    print(f"Predicted churners: {(results['PredictedChurn'] == 1).sum()}")
     print(f"Predictions saved to: {output_path}")
 
 
