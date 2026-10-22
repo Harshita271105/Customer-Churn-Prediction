@@ -771,6 +771,40 @@ with insights_tab:
             "segment-level analysis."
         )
 
+        
+    # ------------------------------------------
+    # MODEL FEATURE IMPORTANCE
+    # ------------------------------------------
+    st.divider()
+    st.subheader("Model Explainability | Feature Importance")
+
+    importance_path = Path(__file__).resolve().parent / "reports" / "feature_importance.json"
+
+    if importance_path.exists():
+        importance_df = pd.read_json(importance_path)
+
+        top_features = (
+            importance_df
+            .sort_values("importance_mean", ascending=False)
+            .head(10)
+            .sort_values("importance_mean")
+        )
+
+        st.bar_chart(
+            top_features.set_index("feature")["importance_mean"],
+            horizontal=True,
+        )
+
+        st.caption(
+            "Permutation importance measures the decrease in model "
+            "ROC-AUC when a feature is randomly shuffled. "
+            "Higher values indicate greater predictive importance, "
+            "not a causal effect."
+        )
+    else:
+        st.info("Feature importance results are not available.")
+
+
 # --------------------------------------------------
 # ABOUT TAB
 # --------------------------------------------------
