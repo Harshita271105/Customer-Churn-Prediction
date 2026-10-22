@@ -2,24 +2,6 @@
     "model": "churn_model.joblib",
     "threshold_selection_metric": "f1_score",
     "selected_threshold": 0.6,
-    "cross_validation": {
-        "folds": 5,
-        "training_rows": 5634,
-        "metrics": {
-            "roc_auc": {
-                "mean": 0.8459527189246974,
-                "std": 0.012409919912800488
-            },
-            "f1": {
-                "mean": 0.6282570726199064,
-                "std": 0.023165361233898393
-            },
-            "recall": {
-                "mean": 0.8013377926421403,
-                "std": 0.037932968237479145
-            }
-        }
-    },
     "threshold_selection": {
         "method": "5-fold out-of-fold predictions on training data",
         "thresholds": {
@@ -147,5 +129,10 @@
                 ]
             ]
         }
+    },
+    "configuration": {
+        "test_size": 0.2,
+        "random_state": 42,
+        "cross_validation_folds": 5
     }
 }
