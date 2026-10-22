@@ -621,6 +621,52 @@ with prediction_tab:
                     unsafe_allow_html=True,
                 )
                 st.progress(probability)
+                st.markdown("### Customer Risk Indicators")
+
+                risk_indicators = []
+
+                if customer.loc[0, "Contract"] == "Month-to-month":
+                    risk_indicators.append(
+                        "Month-to-month contract: this segment has a higher "
+                        "observed churn rate."
+                    )
+
+                if customer.loc[0, "tenure"] <= 12:
+                    risk_indicators.append(
+                        "Short tenure: newer customers have a higher "
+                        "observed churn rate."
+                    )
+
+                if customer.loc[0, "InternetService"] == "Fiber optic":
+                    risk_indicators.append(
+                        "Fiber-optic service: this segment has a higher "
+                        "observed churn rate."
+                    )
+
+                if customer.loc[0, "PaymentMethod"] == "Electronic check":
+                    risk_indicators.append(
+                        "Electronic-check payment: this segment has a higher "
+                        "observed churn rate."
+                    )
+
+                if customer.loc[0, "MonthlyCharges"] >= 70:
+                    risk_indicators.append(
+                        "Higher monthly charges: review whether the plan "
+                        "meets the customer's needs."
+                    )
+
+                if risk_indicators:
+                    for indicator in risk_indicators:
+                        st.markdown(f"- {indicator}")
+                else:
+                    st.write(
+                        "No specific indicators from these rules were identified."
+                    )
+
+                st.caption(
+                    "These indicators reflect observed dataset patterns. "
+                    "They are not causal explanations of the model prediction."
+                )
 
             with col2:
                 if probability >= CHURN_THRESHOLD:
