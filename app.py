@@ -1,3 +1,4 @@
+import json
 
 from pathlib import Path
 
@@ -621,124 +622,49 @@ with prediction_tab:
                     unsafe_allow_html=True,
                 )
                 st.progress(probability)
+                
                 st.markdown("### Customer Risk Indicators")
 
-                risk_indicators = []
+                importance_path = (
+                    PROJECT_ROOT / "reports" / "feature_importance.json"
+                )
 
-                if customer.loc[0, "Contract"] == "Month-to-month":
-                    risk_indicators.append(
-                        "Month-to-month contract: this segment has a higher "
-                        "observed churn rate."
-                    )
+                if importance_path.exists():
+                    with open(importance_path, encoding="utf-8") as file:
+                        importance_data = json.load(file)
 
-                if customer.loc[0, "tenure"] <= 12:
-                    risk_indicators.append(
-                        "Short tenure: newer customers have a higher "
-                        "observed churn rate."
-                    )
+                    importance_df = pd.DataFrame(importance_data)
 
-                if customer.loc[0, "InternetService"] == "Fiber optic":
-                    risk_indicators.append(
-                        "Fiber-optic service: this segment has a higher "
-                        "observed churn rate."
-                    )
+                    if (
+                        not importance_df.empty
+                        and {"feature", "importance_mean"}.issubset(
+                            importance_df.columns
+                        )
+                    ):
+                        top_features = importance_df.head(5)
 
-                if customer.loc[0, "PaymentMethod"] == "Electronic check":
-                    risk_indicators.append(
-                        "Electronic-check payment: this segment has a higher "
-                        "observed churn rate."
-                    )
+                        st.write(
+                            "The following features have relatively high "
+                            "global importance in the trained model:"
+                        )
 
-                if customer.loc[0, "MonthlyCharges"] >= 70:
-                    risk_indicators.append(
-                        "Higher monthly charges: review whether the plan "
-                        "meets the customer's needs."
-                    )
-
-                if risk_indicators:
-                    for indicator in risk_indicators:
-                        st.markdown(f"- {indicator}")
+                        for _, row in top_features.iterrows():
+                            st.markdown(
+                                f"- **{row['feature']}** — importance "
+                                f"{row['importance_mean']:.4f}"
+                            )
+                    else:
+                        st.info("The feature-importance report is empty or invalid.")
                 else:
-                    st.write(
-                        "No specific indicators from these rules were identified."
-                    )
+                    st.info("Feature-importance results are not available.")
 
                 st.caption(
-                    "These indicators reflect observed dataset patterns. "
-                    "They are not causal explanations of the model prediction."
+                    "Global feature importance describes overall model behavior. "
+                    "It does not identify which features raised or lowered this "
+                    "individual customer's prediction, and it does not establish "
+                    "causation."
                 )
 
-            with col2:
-                if probability >= CHURN_THRESHOLD:
-                    st.error("### Higher predicted churn risk")
-                    st.write(
-                        "Review this customer's service experience "
-                        "and consider appropriate retention options."
-                    )
-                else:
-                    st.success("### Lower predicted churn risk")
-                    st.write(
-                        "The model estimates a lower likelihood of churn. "
-                        "Continue monitoring customer satisfaction."
-                    )
-
-                st.metric(
-                    "Predicted Class",
-                    "Likely to Churn"
-                    if prediction == 1
-                    else "Likely to Stay",
-                )
-
-            # Suggestions are based on observed dataset associations.
-            st.markdown("#### Retention Opportunities")
-            suggestions = []
-
-            if contract == "Month-to-month":
-                suggestions.append(
-                    "Review whether a suitable longer-term plan "
-                    "would benefit this customer."
-                )
-
-            if tenure <= 12:
-                suggestions.append(
-                    "Consider an early-tenure onboarding or "
-                    "customer-success check-in."
-                )
-
-            if internet == "Fiber optic":
-                suggestions.append(
-                    "Review internet-service satisfaction, reliability, "
-                    "and value for money."
-                )
-
-            if payment == "Electronic check":
-                suggestions.append(
-                    "Review payment experience and communicate "
-                    "available payment options."
-                )
-
-            if monthly_charges >= 70:
-                suggestions.append(
-                    "Review the customer's plan, usage, and available "
-                    "pricing options."
-                )
-
-            if not suggestions:
-                suggestions.append(
-                    "Continue regular satisfaction checks and "
-                    "monitor future customer activity."
-                )
-
-            for suggestion in suggestions:
-                st.markdown(f"- {suggestion}")
-
-            st.caption(
-                f"Classification threshold: {CHURN_THRESHOLD:.0%}. "
-                "The probability is a model estimate, not a guarantee. "
-                "The threshold was selected using training-set cross-validation "
-                "to maximize F1-score. Suggestions are general prompts, "
-                "not causal explanations of the prediction."
-            )
 
         except Exception as exc:
             st.error(f"Prediction failed: {exc}")
