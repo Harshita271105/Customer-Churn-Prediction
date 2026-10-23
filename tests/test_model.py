@@ -1,11 +1,12 @@
 import json
 from pathlib import Path
-
+import pytest
 import joblib
 import pandas as pd
 
 from src.predict import CHURN_THRESHOLD, predict_churn
-
+from src.customer_explanation import explain_customer
+from src.predict import CHURN_THRESHOLD
 
 MODEL_PATH = (
     Path(__file__).resolve().parents[1]
@@ -111,3 +112,71 @@ def test_feature_importance_report_is_valid():
         isinstance(item["feature"], str) and item["feature"]
         for item in report
     )
+
+    
+def test_customer_explanation_returns_valid_probability():
+    customer_data = pd.DataFrame({
+        "gender": ["Female"],
+        "SeniorCitizen": [0],
+        "Partner": ["Yes"],
+        "Dependents": ["No"],
+        "tenure": [6],
+        "PhoneService": ["Yes"],
+        "MultipleLines": ["No"],
+        "InternetService": ["Fiber optic"],
+        "OnlineSecurity": ["No"],
+        "OnlineBackup": ["No"],
+        "DeviceProtection": ["No"],
+        "TechSupport": ["No"],
+        "StreamingTV": ["No"],
+        "StreamingMovies": ["No"],
+        "Contract": ["Month-to-month"],
+        "PaperlessBilling": ["Yes"],
+        "PaymentMethod": ["Electronic check"],
+        "MonthlyCharges": [85.0],
+        "TotalCharges": [510.0],
+    })
+
+    result = explain_customer(customer_data)
+
+    assert 0 <= result["churn_probability"] <= 1
+    assert isinstance(result["observations"], list)
+
+
+def test_customer_explanation_identifies_customer_context():
+    customer_data = pd.DataFrame({
+        "gender": ["Female"],
+        "SeniorCitizen": [0],
+        "Partner": ["Yes"],
+        "Dependents": ["No"],
+        "tenure": [6],
+        "PhoneService": ["Yes"],
+        "MultipleLines": ["No"],
+        "InternetService": ["Fiber optic"],
+        "OnlineSecurity": ["No"],
+        "OnlineBackup": ["No"],
+        "DeviceProtection": ["No"],
+        "TechSupport": ["No"],
+        "StreamingTV": ["No"],
+        "StreamingMovies": ["No"],
+        "Contract": ["Month-to-month"],
+        "PaperlessBilling": ["Yes"],
+        "PaymentMethod": ["Electronic check"],
+        "MonthlyCharges": [85.0],
+        "TotalCharges": [510.0],
+    })
+
+    result = explain_customer(customer_data)
+    features = {item["feature"] for item in result["observations"]}
+
+    assert {"Contract", "tenure", "InternetService"} <= features
+    assert result["explanation_type"].startswith("Rule-based")
+
+
+def test_customer_explanation_rejects_multiple_customers():
+    customer_data = pd.DataFrame({
+        "tenure": [6, 24],
+    })
+
+    with pytest.raises(ValueError, match="exactly one customer"):
+        explain_customer(customer_data)

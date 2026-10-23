@@ -1,7 +1,7 @@
 import json
 
 from pathlib import Path
-
+from src.customer_explanation import explain_customer
 import joblib
 import pandas as pd
 import streamlit as st
@@ -600,6 +600,7 @@ with prediction_tab:
         try:
             probability = float(model.predict_proba(customer)[0, 1])
             prediction = int(probability >= CHURN_THRESHOLD)
+            explanation = explain_customer(customer, model=model)
 
             st.divider()
             st.markdown(
@@ -622,8 +623,9 @@ with prediction_tab:
                     unsafe_allow_html=True,
                 )
                 st.progress(probability)
-                
-                st.markdown("### Customer Risk Indicators")
+
+                # GLOBAL FEATURE IMPORTANCE
+                st.markdown("### Global Feature Importance")
 
                 importance_path = (
                     PROJECT_ROOT / "reports" / "feature_importance.json"
@@ -644,8 +646,8 @@ with prediction_tab:
                         top_features = importance_df.head(5)
 
                         st.write(
-                            "The following features have relatively high "
-                            "global importance in the trained model:"
+                            "These features have relatively high global "
+                            "importance in the trained model:"
                         )
 
                         for _, row in top_features.iterrows():
@@ -654,20 +656,74 @@ with prediction_tab:
                                 f"{row['importance_mean']:.4f}"
                             )
                     else:
-                        st.info("The feature-importance report is empty or invalid.")
+                        st.info(
+                            "The feature-importance report is empty or invalid."
+                        )
                 else:
-                    st.info("Feature-importance results are not available.")
+                    st.info(
+                        "Feature-importance results are not available."
+                    )
 
                 st.caption(
-                    "Global feature importance describes overall model behavior. "
-                    "It does not identify which features raised or lowered this "
-                    "individual customer's prediction, and it does not establish "
-                    "causation."
+                    "Global feature importance describes overall model "
+                    "behavior. It does not show which features increased "
+                    "or decreased this individual customer's prediction "
+                    "and does not establish causation."
                 )
 
+                # INDIVIDUAL CUSTOMER CONTEXT
+                st.markdown("### Individual Customer Risk Indicators")
+
+                st.caption(
+                    "These observations describe customer-segment patterns. "
+                    "They are not causal explanations of the model's prediction."
+                )
+
+                if explanation["observations"]:
+                    for item in explanation["observations"]:
+                        st.markdown(
+                            f"- **{item['feature']}**: {item['value']} — "
+                            f"{item['context']}"
+                        )
+                else:
+                    st.info(
+                        "No specific rule-based risk indicators were identified."
+                    )
+
+            with col2:
+                if probability >= CHURN_THRESHOLD:
+                    st.error("### Higher predicted churn risk")
+                    st.write(
+                        "Review this customer's service experience "
+                        "and consider appropriate retention options."
+                    )
+                else:
+                    st.success("### Lower predicted churn risk")
+                    st.write(
+                        "The model estimates a lower likelihood of churn. "
+                        "Continue monitoring customer satisfaction."
+                    )
+
+                st.metric(
+                    "Classification threshold",
+                    f"{CHURN_THRESHOLD:.0%}",
+                )
+
+                st.metric(
+                    "Predicted class",
+                    "Churn" if prediction == 1 else "No churn",
+                )
+
+                st.caption(
+                    "The probability is a model estimate, not a guarantee. "
+                    "The threshold was selected using training-set "
+                    "cross-validation. Retention suggestions are general "
+                    "prompts, not causal explanations."
+                )
 
         except Exception as exc:
             st.error(f"Prediction failed: {exc}")
+
 
 # --------------------------------------------------
 # EDA & INSIGHTS TAB
