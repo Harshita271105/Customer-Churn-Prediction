@@ -21,6 +21,8 @@ Try the deployed application:
 - **Threshold-Based Classification:** Use a selected decision threshold of 0.60 to classify predicted churn probabilities.
 - **Automated Testing:** Run tests to verify model loading and prediction functionality.
 - **Interactive Dashboard:** Explore analytics, predictions, and insights through a Streamlit web application.
+**Individual Customer Explanations:** Display rule-based risk indicators for an individual customer alongside global feature importance.
+**Model Explainability:** Analyze global feature importance using permutation importance evaluated with ROC-AUC.
 
 ## 🧰 Tech Stack
 
