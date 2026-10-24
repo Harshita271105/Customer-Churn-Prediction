@@ -21,8 +21,13 @@ Try the deployed application:
 - **Threshold-Based Classification:** Use a selected decision threshold of 0.60 to classify predicted churn probabilities.
 - **Automated Testing:** Run tests to verify model loading and prediction functionality.
 - **Interactive Dashboard:** Explore analytics, predictions, and insights through a Streamlit web application.
-**Individual Customer Explanations:** Display rule-based risk indicators for an individual customer alongside global feature importance.
-**Model Explainability:** Analyze global feature importance using permutation importance evaluated with ROC-AUC.
+- **Individual Customer Explanations:** Display rule-based risk indicators for an individual customer alongside global feature importance.
+- **Model Explainability:** Analyze global feature importance using permutation importance evaluated with ROC-AUC.
+- **Cross-Validated Model Selection:** Compares Logistic Regression and Random Forest using stratified cross-validation and ROC-AUC.
+- **Customer-Level Risk Context:** Presents rule-based customer risk indicators alongside predicted churn probability.
+- **Feature Importance:** Uses permutation importance to identify features associated with overall model performance.
+- **Statistical Data-Drift Monitoring:** Compares reference and comparison samples using Kolmogorov–Smirnov and chi-square tests, with Benjamini–Hochberg correction.
+- **Automated Testing:** Includes pytest coverage for prediction outputs, customer explanations, feature-importance reports, and monitoring reports.
 
 ## 🧰 Tech Stack
 
