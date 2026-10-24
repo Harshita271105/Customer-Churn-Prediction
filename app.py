@@ -832,6 +832,76 @@ with insights_tab:
     else:
         st.info("Feature importance results are not available.")
 
+        
+    st.divider()
+    st.markdown(
+        '<div class="section-heading">Data Drift Monitoring</div>',
+        unsafe_allow_html=True,
+    )
+
+    drift_report_path = (
+        PROJECT_ROOT / "reports" / "data_drift_report.json"
+    )
+
+    if drift_report_path.exists():
+        with open(drift_report_path, encoding="utf-8") as file:
+            drift_report = json.load(file)
+
+        drift_count = drift_report.get("drifted_feature_count", 0)
+        drift_features = drift_report.get("drifted_features", [])
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric(
+            "Reference Records",
+            drift_report.get("reference_rows", 0),
+        )
+        col2.metric(
+            "Comparison Records",
+            drift_report.get("current_rows", 0),
+        )
+        col3.metric(
+            "Potentially Drifted Features",
+            drift_count,
+        )
+
+        if drift_features:
+            st.warning(
+                "Potential distribution changes detected in: "
+                + ", ".join(drift_features)
+            )
+        else:
+            st.success(
+                "No statistically significant feature drift detected "
+                "in the current comparison."
+            )
+
+        st.caption(drift_report.get("warning", ""))
+
+        with st.expander("View feature-level monitoring results"):
+            drift_rows = []
+
+            for feature, details in drift_report.get("features", {}).items():
+                drift_rows.append({
+                    "Feature": feature,
+                    "Type": details.get("type"),
+                    "P-value": details.get("p_value"),
+                    "Adjusted P-value": details.get("adjusted_p_value"),
+                    "Status": details.get("status"),
+                })
+
+            if drift_rows:
+                st.dataframe(
+                    pd.DataFrame(drift_rows),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+    else:
+        st.info(
+            "No monitoring report found. Run "
+            "`python src/monitor_model.py` to generate one."
+        )
+
 
 # --------------------------------------------------
 # ABOUT TAB
